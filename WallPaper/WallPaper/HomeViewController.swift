@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  HomeViewController.swift
 //  WallPaper
 //
 //  Created by yutao on 15-4-27.
@@ -8,11 +8,16 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        var netWorkManager = WPNetWorkManager();
+        
+//        netWorkManager.WPTagsFormNetWork();
+        netWorkManager.WPPinsFormNetWorkWith("美女", limit: 20);
+        
     }
 
     override func didReceiveMemoryWarning() {
