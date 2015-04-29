@@ -17,6 +17,8 @@ import Foundation
 
 class WPNetWorkManager: NSObject,NSURLSessionDelegate,NSURLSessionDataDelegate {
     
+    
+    
     var session:NSURLSession!
     var mutableData:NSMutableData = NSMutableData();
     
@@ -25,7 +27,6 @@ class WPNetWorkManager: NSObject,NSURLSessionDelegate,NSURLSessionDataDelegate {
         super.init();
         let configuration = NSURLSessionConfiguration.defaultSessionConfiguration();
         
-//        session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil);
         session = NSURLSession.sharedSession();
         
     }
@@ -38,18 +39,21 @@ class WPNetWorkManager: NSObject,NSURLSessionDelegate,NSURLSessionDataDelegate {
         let jsonObject:AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: &error);
         if let jsonArrayObject = jsonObject as? NSArray{
             var tagArray = NSMutableArray();
-            for tagIndex in 0...jsonArrayObject.count - 1{
-                if let tagName:NSString = (jsonArrayObject[tagIndex] as? NSDictionary)? ["tag_name"] as? NSString{
+            for tagItem in jsonArrayObject{
+                if let tagName:NSString = (tagItem as? NSDictionary)? ["tag_name"] as? NSString{
                     var tagItem = WPTagItem(name: tagName);
                     tagArray.addObject(tagItem);
                 }
             }
+            
+            NSNotificationCenter.defaultCenter().postNotificationName(WPTagItemsFromNetSuccessNotification, object: tagArray);
         }
     }
     
     
     func WPTagsNetErrorHanderWith(error :NSError){
         println(error.localizedDescription)
+        NSNotificationCenter.defaultCenter().postNotificationName(WPTagItemsFromNetErrorNotification, object: error);
     }
     
     
@@ -77,6 +81,7 @@ class WPNetWorkManager: NSObject,NSURLSessionDelegate,NSURLSessionDataDelegate {
     
     func WPPinsNetErrorHanderWith(error:NSError){
         println(error.localizedDescription)
+        NSNotificationCenter.defaultCenter().postNotificationName(WPPinItemsFromNetErrorNotification, object: error);
     }
     
     
@@ -85,13 +90,14 @@ class WPNetWorkManager: NSObject,NSURLSessionDelegate,NSURLSessionDataDelegate {
         let jsonObject:AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: &error);
         if let jsonArrayObject = (jsonObject as? NSDictionary)?["pins"] as? NSArray{
             var pinArray = NSMutableArray();
-            for pinIndex in 0...jsonArrayObject.count - 1{
-                let pin_id = (jsonArrayObject[pinIndex] as? NSDictionary)?["pin_id"] as? Int;
-                let pin_key = (((jsonArrayObject[pinIndex] as? NSDictionary)?["file"]) as? NSDictionary)?["key"] as? NSString;
+            for pinItem in jsonArrayObject{
+                let pin_id = (pinItem as? NSDictionary)?["pin_id"] as? Int;
+                let pin_key = (((pinItem as? NSDictionary)?["file"]) as? NSDictionary)?["key"] as? NSString;
                 var pinItem = WPPinItem(pinKey: pin_key!, pinID: String(pin_id!));
-                
                 pinArray.addObject(pinItem);
             }
+            
+            NSNotificationCenter.defaultCenter().postNotificationName(WPPinItemsFromNetSuccessNotification, object: pinArray);
         }
         
     }
